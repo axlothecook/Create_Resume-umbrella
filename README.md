@@ -1,52 +1,38 @@
-# Create_Resume
+# Resume Creator
+A full-stack resume builder. Enables users to create, save, update and delete professional resumes. 
 
-A full-stack résumé / CV builder — build a résumé section by section with a live
-preview, customise the layout/colours/fonts, download a vector PDF, and (with an
-account) save multiple résumés to the cloud and reload them later. Fully responsive,
-with a light/dark theme.
+The project is split across three repositories:
 
-**Live:** <https://resume.axlothecook.com> — self-hosted on a Raspberry Pi, exposed
-via Cloudflare Tunnel.
+### [Front end](https://github.com/axlothecook/Create_Resume)
+The React app that represents the website's UI. Built as a single-page application.
 
-The project is split across three repositories. Pick the one you want to view:
+### [Back end](https://github.com/axlothecook/Create_Resume-backend)
+The Express API with MongoDB as the database. Controls account creation and login (cookie-based sessions) and the saved resumes.
 
-| Repository | What it is |
-| --- | --- |
-| [**Front end**](https://github.com/axlothecook/Create_Resume) | React 19 + Vite single-page app. The résumé-builder UI + live preview + PDF export. |
-| [**Back end**](https://github.com/axlothecook/Create_Resume-backend) | Node.js + Express 5 + MongoDB REST API. Accounts (session auth) + saved résumés. |
-| [**Deploy**](https://github.com/axlothecook/create-resume-deploy) | Docker Compose orchestration + Cloudflare Tunnel for the Raspberry Pi deploy. Includes `ARCHITECTURE.md` + `DEPLOY.md`. |
+### [Deploy](https://github.com/axlothecook/create-resume-deploy)
+The config files that instruct how to deploy the project on my Raspberry Pi via a [CI/CD pipeline](https://github.com/axlothecook/homelab-ci-cd).
 
 ## How it fits together
+The graph below shows how the repos connect at runtime. The Cloudflare Tunnel sends visitors to the frontend container, where nginx serves the static app and also proxies /api requests to the backend, so everything lives on one domain. The backend stores accounts and resumes in MongoDB; resumes are saved as JSON, so no file storage is needed. The backend and the database have no public address.
 
-```
-Browser ─▶ Cloudflare Tunnel ─┬─▶ Front end (nginx, static SPA)
-                              │
-                              └─▶ Back end (Express API) ─▶ MongoDB
-```
+![image](https://github.com/user-attachments/assets/043bd02c-c83a-495e-82d8-0d4af87d2185)
 
-- The **front end** is a static SPA served by nginx; the browser calls the API
-  directly (the API URL is baked in at build time).
-- The **back end** owns all data — accounts and saved résumés — with session-cookie
-  auth. Résumés are stored as JSON in MongoDB (no object storage needed).
-- The **deploy** repo ties everything together with Docker Compose and runs the whole
-  stack (plus MongoDB and `cloudflared`) on a Raspberry Pi. CI builds the images and
-  auto-deploys on every push to `main`.
-
-## Tech stack at a glance
-
-- **Front end:** React 19, Vite, @react-pdf/renderer (vector PDF), @dnd-kit (drag-to-
-  reorder), self-hosted Poppins, plain CSS (mobile-first, light/dark theme).
-- **Back end:** Node.js, Express 5, MongoDB / Mongoose, passport-local + sessions.
-- **Infra:** Docker / Docker Compose, nginx, GitHub Actions (GHCR), Cloudflare Tunnel,
-  Tailscale (CI → Pi), Raspberry Pi.
+## Deployment
+The project is deployed via my [CI/CD pipeline](https://github.com/axlothecook/homelab-ci-cd): a push to the frontend or the backend runs that repo's tests, builds the arm64 image, and the Pi pulls it and restarts the stack. If any test fails, nothing gets deployed.
 
 ## Features
+<ul>
+  <li>build a resume section by section, with a live preview</li>
+  <li>decide the order in which sections appear on the cv by dragging them up and down</li>
+  <li>customise the layout, colours and fonts</li>
+  <li>download the resume as a vector PDF</li>
+  <li>with an account save up to 5 resumes and reload them later</li>
+  <li>or browse as a guest: build and download without an account, but nothing gets saved</li>
+  <li>has a light and dark mode switch</li>
+  <li>fully responsive, with a dedicated mobile pass across every page</li>
+</ul>
 
-- Section-by-section editor (personal details, experience, education, projects,
-  skills & languages) with drag-to-reorder and per-item show/hide.
-- Live A4 preview that mirrors the downloadable PDF; customise layout, accent colour,
-  and font.
-- One-click **vector PDF** download.
-- Accounts: sign up / log in, save up to 5 résumés, reload them as live A4 cards,
-  or browse as a guest (build + download, no save).
-- Fully responsive — a full-screen overlay menu + scale-to-fit preview on mobile.
+## Tech stack
+Front end: [React 19](https://react.dev), [Vite](https://vite.dev), [@react-pdf/renderer](https://react-pdf.org) (vector PDF), [@dnd-kit](https://dndkit.com) (drag to reorder), plain CSS, [Vitest](https://vitest.dev) <br />
+Back end: [Node.js](https://nodejs.org), [Express 5](https://expressjs.com), [MongoDB](https://www.mongodb.com) with [Mongoose](https://mongoosejs.com), [Passport](https://www.passportjs.org) sessions, [Jest](https://jestjs.io) <br />
+Deploy: [Docker Compose](https://docs.docker.com/compose/), [GitHub Actions](https://github.com/features/actions) (GHCR, arm64), [Tailscale](https://tailscale.com) (CI to Pi), [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-tunnel/)
