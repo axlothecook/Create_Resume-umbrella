@@ -1,5 +1,5 @@
 # Resume Creator Umbrella repo
-A full-stack resume builder. Enables users to create, save, update and delete professional resumes. 
+An umbrella repo for the full-stack resume builder project. Enables users to create, save, update and delete professional resumes. 
 
 The project is split across three repositories:
 
